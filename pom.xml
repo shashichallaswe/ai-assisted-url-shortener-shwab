@@ -11,10 +11,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.leela</groupId>
-    <artifactId>url-shortener</artifactId>
+    <groupId>com.shwab</groupId>
+    <artifactId>ai-assisted-url-shortner</artifactId>
     <version>0.1.0</version>
-    <name>url-shortener</name>
+    <name>ai-assisted-url-shortner</name>
     <description>URL shortener service with analytics and reliability features</description>
 
     <properties>

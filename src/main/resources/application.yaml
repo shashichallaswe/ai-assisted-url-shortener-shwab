@@ -1,6 +1,6 @@
 spring:
   application:
-    name: url-shortener
+    name: ai-assisted-url-shortner
   threads:
     virtual:
       enabled: true
