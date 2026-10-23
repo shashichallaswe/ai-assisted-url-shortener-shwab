@@ -1,0 +1,16 @@
+app:
+  base-url: http://localhost:8080
+  api-key: test-test-test-key
+  ip-hash-salt: test-salt
+  code-length: 8
+  cache-ttl: 1h
+  negative-cache-ttl: 60s
+  rate-limit:
+    create-per-minute: 1000
+    redirect-per-minute: 10000
+
+spring:
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate

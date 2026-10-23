@@ -1,0 +1,148 @@
+openapi: 3.0.3
+info:
+  title: URL Shortener
+  version: 0.1.0
+servers:
+  - url: http://localhost:8080
+paths:
+  /health:
+    get:
+      summary: Liveness
+      responses:
+        "200":
+          description: Process is up
+  /ready:
+    get:
+      summary: Readiness (Postgres)
+      responses:
+        "200":
+          description: Postgres reachable
+        "503":
+          description: Postgres unavailable
+  /{code}:
+    get:
+      summary: Redirect
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Found
+          headers:
+            Location:
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+              example: private, no-store
+        "404":
+          description: Unknown, expired, or deleted
+        "429":
+          description: Rate limited
+  /api/v1/links:
+    post:
+      summary: Create a short link
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLinkRequest"
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Validation error
+        "401":
+          description: Missing or invalid API key
+        "409":
+          description: Alias or idempotency conflict
+        "429":
+          description: Rate limited
+  /api/v1/links/{code}:
+    get:
+      summary: Link metadata
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+    delete:
+      summary: Soft delete
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+        "503":
+          description: Cache invalidation failed
+  /api/v1/links/{code}/stats:
+    get:
+      summary: Click stats
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    CreateLinkRequest:
+      type: object
+      required: [originalUrl]
+      properties:
+        originalUrl:
+          type: string
+          example: https://example.com/a
+        expiresAt:
+          type: string
+          format: date-time
+        alias:
+          type: string
+          minLength: 4
+          maxLength: 32
